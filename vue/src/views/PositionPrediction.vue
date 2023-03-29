@@ -21,7 +21,7 @@
       >
         <el-button type="danger" slot="reference">批量删除 <i class="el-icon-remove-outline"></i></el-button>
       </el-popconfirm>
-      <!-- <el-upload action="http://localhost:9090/airplane/import" :show-file-list="false" accept="xlsx" :on-success="handleExcelImportSuccess" style="display: inline-block">
+      <!-- <el-upload action="http://localhost:9090/positionPrediction/import" :show-file-list="false" accept="xlsx" :on-success="handleExcelImportSuccess" style="display: inline-block">
         <el-button type="primary" class="ml-5">导入 <i class="el-icon-bottom"></i></el-button>
       </el-upload>
       <el-button type="primary" @click="exp" class="ml-5">导出 <i class="el-icon-top"></i></el-button> -->
@@ -31,10 +31,7 @@
       <el-table-column type="selection" width="55"></el-table-column>
       <el-table-column prop="id" label="ID" width="80" sortable></el-table-column>
       <el-table-column prop="name" label="名称"></el-table-column>
-      <el-table-column prop="number" label="飞机数量"></el-table-column>
-      <el-table-column prop="type" label="飞机类别"></el-table-column>
-      <el-table-column prop="creatTime" label="检测日期"></el-table-column>
-      <el-table-column label="图片"><template slot-scope="scope"><el-image style="width: 100px; height: 100px" :src="scope.row.img" :preview-src-list="[scope.row.img]"></el-image></template></el-table-column>
+      <el-table-column prop="addTest" label="其他"></el-table-column>
 
       <el-table-column label="操作"  width="180" align="center">
         <template slot-scope="scope">
@@ -70,19 +67,8 @@
         <el-form-item label="名称">
           <el-input v-model="form.name" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="飞机数量">
-          <el-input v-model="form.number" autocomplete="off"></el-input>
-        </el-form-item>
-        <el-form-item label="飞机类别">
-          <el-input v-model="form.type" autocomplete="off"></el-input>
-        </el-form-item>
-        <el-form-item label="检测日期">
-          <el-date-picker v-model="form.creatTime" type="datetime" value-format="yyyy-MM-dd HH:mm:ss" placeholder="选择日期时间"></el-date-picker>
-        </el-form-item>
-        <el-form-item label="图片">
-          <el-upload action="http://localhost:9090/file/upload" ref="img" :on-success="handleImgUploadSuccess">
-            <el-button size="small" type="primary">点击上传</el-button>
-          </el-upload>
+        <el-form-item label="其他">
+          <el-input v-model="form.addTest" autocomplete="off"></el-input>
         </el-form-item>
 
       </el-form>
@@ -96,7 +82,7 @@
 
 <script>
 export default {
-  name: "Airplane",
+  name: "PositionPrediction",
   data() {
     return {
       tableData: [],
@@ -115,7 +101,7 @@ export default {
   },
   methods: {
     load() {
-      this.request.get("/airplane/page", {
+      this.request.get("/positionPrediction/page", {
         params: {
           pageNum: this.pageNum,
           pageSize: this.pageSize,
@@ -124,11 +110,10 @@ export default {
       }).then(res => {
         this.tableData = res.data.records
         this.total = res.data.total
-        console.log(res)
       })
     },
     save() {
-      this.request.post("/airplane", this.form).then(res => {
+      this.request.post("/positionPrediction", this.form).then(res => {
         if (res.code === '200') {
           this.$message.success("保存成功")
           this.dialogFormVisible = false
@@ -163,7 +148,7 @@ export default {
        })
     },
     del(id) {
-      this.request.delete("/airplane/" + id).then(res => {
+      this.request.delete("/positionPrediction/" + id).then(res => {
         if (res.code === '200') {
           this.$message.success("删除成功")
           this.load()
@@ -182,7 +167,7 @@ export default {
         return
       }
       let ids = this.multipleSelection.map(v => v.id)  // [{}, {}, {}] => [1,2,3]
-      this.request.post("/airplane/del/batch", ids).then(res => {
+      this.request.post("/positionPrediction/del/batch", ids).then(res => {
         if (res.code === '200') {
           this.$message.success("批量删除成功")
           this.load()
@@ -215,7 +200,7 @@ export default {
       window.open(url)
     },
     exp() {
-      window.open("http://localhost:9090/airplane/export")
+      window.open("http://localhost:9090/positionPrediction/export")
     },
     handleExcelImportSuccess() {
       this.$message.success("导入成功")

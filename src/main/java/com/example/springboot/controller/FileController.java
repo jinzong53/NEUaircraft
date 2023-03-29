@@ -20,7 +20,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.List;
-
+import org.python.core.*;
+import org.python.util.*;
 /**
  * 文件上传相关接口
  */
@@ -34,6 +35,24 @@ public class FileController {
     @Resource
     private FileMapper fileMapper;
 
+    /**
+     * 显示接口
+     * 调用Python文件 返回图片地址
+     * @return
+     */
+    @GetMapping("/print")
+    public PyObject HelloPython() {
+        PythonInterpreter interpreter = new PythonInterpreter();
+        interpreter.execfile("C:\\D\\airplane\\springboot\\predict.py");
+
+        PyFunction pyFunction = interpreter.get("hello", PyFunction.class); // 第一个参数为期望获得的函数（变量）的名字，第二个参数为期望返回的对象类型
+        PyObject pyObject = pyFunction.__call__(); // 调用函数
+
+
+
+        System.out.println(pyObject);
+        return pyObject;
+    }
     /**
      * 文件上传接口
      * @param file 前端传递过来的文件

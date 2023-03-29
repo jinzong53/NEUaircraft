@@ -15,8 +15,8 @@
         <el-col :span="24">
           <el div style="color: #42b983;font-size: 14px;">
         <b>yolo_改进版为yolov5基础上我们提供的更高效精准的无人机检测模型</b></el>
-        <br />
-        <el-divider />
+        <br/>
+        <el-divider/>
         </el-col>
 
         <el-col :span="12">
@@ -37,13 +37,23 @@
 
         <el-col :span="24">
           <br />
-          <el-form-item label="上传图片" prop="field103" required>
+          <el-form-item label="上传图片" prop="field103" >
             <el-upload ref="field103" :file-list="field103fileList" :action="field103Action" multiple
                        :before-upload="field103BeforeUpload" list-type="picture">
               <el-button size="small" type="primary" icon="el-icon-upload">点击上传（可批量）</el-button>
             </el-upload>
           </el-form-item>
         </el-col>
+        <el-col :span="24">
+          <br />
+          <el-form-item label="上传数据集" prop="field109">
+            <el-upload ref="field109" :file-list="field103fileList" :action="field103Action" multiple
+                       :before-upload="field103BeforeUpload" list-type="picture">
+              <el-button size="small" type="primary" icon="el-icon-upload">点击上传</el-button>
+            </el-upload>
+          </el-form-item>
+        </el-col>
+
 
         <el-col :span="24">
           <el-form-item size="large">
@@ -51,8 +61,41 @@
             <el-button @click="resetForm">重置</el-button>
           </el-form-item>
         </el-col>
+        <el-col :span="8">
+          <el-form-item label="检测">
+            <el-button type="primary" @click="run" icon="el-icon-search" size="medium"> 运行 </el-button>
+          </el-form-item>
+        </el-col>
+        <el-col :span="8">
+          <el-form-item>
+            <el-button type="primary" @click="resume" size="medium"> 恢复 </el-button>
+          </el-form-item>
+        </el-col>
       </el-form>
     </el-row>
+
+
+
+
+    <div style="width: 550px;text-align: center;">
+      <el-tag>初始图片</el-tag>
+      <div style=":block">
+          <el-image id="picture1"
+                    style="width: 350px; height: 300px"
+                    :src="imgArr[0]"></el-image>
+      </div>
+
+      <el-tag type="warning">检测结果</el-tag>
+      <div class="block">
+        <el-image id="picture2"
+            style="width: 350px; height: 300px"
+                  :src="imgArr1[0]">
+          <div slot="placeholder" class="image-slot">
+            加载中<span class="dot">...</span>
+          </div>
+        </el-image>
+      </div>
+    </div>
   </div>
 </template>
 <script>
@@ -61,6 +104,19 @@ export default {
   props: [],
   data() {
     return {
+
+      imgArr:[
+          "http://localhost:9090/file/8a7d34e080c04172a3f801f943972f7f.jpg",
+          "http://localhost:9090/file/0aff099ca37e41cbbff4e4f045c05634.jpg",
+
+      ],
+      imgArr1:[
+        "http://localhost:9090/file/8b7d34e080c04172a3f801f943972f7f.jpg",
+        "http://localhost:9090/file/9bff099ca37e41cbbff4e4f045c05634.jpg",
+
+      ],
+      // src1: 'http://localhost:9090/file/8a7d34e080c04172a3f801f943972f7f.jpg',
+      // src2: 'http://localhost:9090/file/8b7d34e080c04172a3f801f943972f7f.jpg',
       formData: {
         field101: '',
         field102: undefined,
@@ -68,6 +124,7 @@ export default {
         field103: null,
         field104: undefined,
         field105: undefined,
+        field111: undefined,
       },
       rules: {
         field101: [{
@@ -116,12 +173,40 @@ export default {
         if (!valid) return
         // TODO 提交表单
       })
+      this.request.get("/print", {
+        params: {
+          pageNum: this.pageNum,
+          pageSize: this.pageSize,
+          name: this.name,
+        }
+      }).then(res => {
+        this.tableData = res.data.records
+        this.total = res.data.total,
+            console.log(res)
+
+      })
     },
+    run(){
+      var msg=document.getElementById("picture1");
+      // msg.src='http://localhost:9090/file/0aff099ca37e41cbbff4e4f045c05634.jpg';
+      // var msg1=document.getElementById("picture2");
+      // msg1.src='http://localhost:9090/file/9bff099ca37e41cbbff4e4f045c05634.jpg';
+
+      msg.src='http://localhost:9090/file/0aff099ca37e41cbbff4e4f045c05634.jpg';
+  },
+
+    resume(){
+    var msg=document.getElementById("picture1");
+    msg.src='http://localhost:9090/file/8a7d34e080c04172a3f801f943972f7f.jpg';
+    var msg1=document.getElementById("picture2");
+    msg1.src='http://localhost:9090/file/8b7d34e080c04172a3f801f943972f7f.jpg';
+
+  },
     resetForm() {
       this.$refs['elForm'].resetFields()
     },
     field103BeforeUpload(file) {
-      let isRightSize = file.size / 1024 / 1024 < 2
+      let isRightSize = file.size / 1024 / 1024 < 100
       if (!isRightSize) {
         this.$message.error('文件大小超过 100MB')
       }
@@ -129,6 +214,9 @@ export default {
     },
   }
 }
+
+
+
 
 </script>
 <style>
