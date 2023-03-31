@@ -189,8 +189,8 @@ export default {
     run(){
       var msg=document.getElementById("picture1");
       // msg.src='http://localhost:9090/file/0aff099ca37e41cbbff4e4f045c05634.jpg';
-      // var msg1=document.getElementById("picture2");
-      // msg1.src='http://localhost:9090/file/9bff099ca37e41cbbff4e4f045c05634.jpg';
+      var msg1=document.getElementById("picture2");
+      msg1.src='http://localhost:9090/file/9bff099ca37e41cbbff4e4f045c05634.jpg';
 
       msg.src='http://localhost:9090/file/0aff099ca37e41cbbff4e4f045c05634.jpg';
   },
