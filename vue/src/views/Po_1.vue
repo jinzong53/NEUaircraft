@@ -1,74 +1,38 @@
 <template>
   <div>
     <div class="container" style="min-height: 100%; padding-bottom: 50px;">
-      Hello，欢迎使用本系统威胁分析功能，请先下载模板，后填写上传
+      Hello，欢迎使用本系统位置预测功能，请先下载模板，后填写上传
 
-    <!--    <div style="margin: 10px 0">
-          <el-input style="width: 200px" placeholder="请输入名称" suffix-icon="el-icon-search" v-model="name"></el-input>
-    &lt;!&ndash;      <el-input style="width: 200px" placeholder="请输入" suffix-icon="el-icon-message" class="ml-5" v-model="email"></el-input>&ndash;&gt;
-    &lt;!&ndash;      <el-input style="width: 200px" placeholder="请输入" suffix-icon="el-icon-position" class="ml-5" v-model="address"></el-input>&ndash;&gt;
-          <el-button class="ml-5" type="primary" @click="load">搜索</el-button>
-          <el-button type="warning" @click="reset">重置</el-button>
-        </div>-->
+      <div style="margin: 10px 0">
+        <el-button type="primary" @click="exp" class="ml-5">下载模板 <i class="el-icon-bottom"></i></el-button>
+        <el-upload action="http://localhost:9090/positionPrediction/import" :show-file-list="false" accept="xlsx" :on-success="handleExcelImportSuccess" style="display: inline-block">
+          <el-button type="primary" class="ml-5">上传文件<i class="el-icon-top"></i></el-button>
+        </el-upload>
 
-    <div style="margin: 10px 0">
-      <!--      <el-button type="primary" @click="handleAdd">新增 <i class="el-icon-circle-plus-outline"></i></el-button>
-            <el-popconfirm
-                class="ml-5"
-                confirm-button-text='确定'
-                cancel-button-text='我再想想'
-                icon="el-icon-info"
-                icon-color="red"
-                title="您确定批量删除这些数据吗？"
-                @confirm="delBatch"
-            >
-              <el-button type="danger" slot="reference">批量删除 <i class="el-icon-remove-outline"></i></el-button>
-            </el-popconfirm>-->
-      <el-button type="primary" @click="exp" class="ml-5">下载模板 <i class="el-icon-bottom"></i></el-button>
-      <el-upload action="http://localhost:9090/threaten/import" :show-file-list="false" accept="xlsx" :on-success="handleExcelImportSuccess" style="display: inline-block">
-        <el-button type="primary" class="ml-5">上传文件<i class="el-icon-top"></i></el-button>
-      </el-upload>
+      </div></div>
+    <div>
+      <el-table :data="tableData" border stripe :header-cell-class-name="'headerBg'"  @selection-change="handleSelectionChange">
+        <el-table-column type="selection" width="55"></el-table-column>
+        <el-table-column prop="id" label="ID" width="80" sortable></el-table-column>
+        <el-table-column prop="name" label="时间"></el-table-column>
+        <el-table-column prop="x" label="X轴位置"></el-table-column>
+        <el-table-column prop="y" label="X轴位置"></el-table-column>
+        <el-table-column prop="z" label="X轴位置"></el-table-column>
 
-    </div></div>
-  <div>
-        <el-table :data="tableData" border stripe :header-cell-class-name="'headerBg'"  @selection-change="handleSelectionChange">
-          <el-table-column type="selection" width="55"></el-table-column>
-          <el-table-column prop="id" label="ID" width="80" sortable></el-table-column>
-          <el-table-column prop="name" label="飞机名称"></el-table-column>
-          <el-table-column prop="height" label="飞机高度"></el-table-column>
-          <el-table-column prop="type" label="飞机类型"></el-table-column>
-          <el-table-column prop="velocity" label="飞机速度"></el-table-column>
-          <el-table-column prop="angle" label="飞机角度"></el-table-column>
-          <el-table-column prop="distance" label="飞机距离"></el-table-column>
 
-<!--          <el-table-column label="操作"  width="180" align="center">
-            <template slot-scope="scope">
-              <el-button type="success" @click="handleEdit(scope.row)">编辑 <i class="el-icon-edit"></i></el-button>
-              <el-popconfirm
-                  class="ml-5"
-                  confirm-button-text='确定'
-                  cancel-button-text='我再想想'
-                  icon="el-icon-info"
-                  icon-color="red"
-                  title="您确定删除吗？"
-                  @confirm="del(scope.row.id)"
-              >
-                <el-button type="danger" slot="reference">删除 <i class="el-icon-remove-outline"></i></el-button>
-              </el-popconfirm>
-            </template>
-          </el-table-column>-->
-        </el-table></div>
-<!--        <div style="padding: 10px 0">
-          <el-pagination
-              @size-change="handleSizeChange"
-              @current-change="handleCurrentChange"
-              :current-page="pageNum"
-              :page-sizes="[2, 5, 10, 20]"
-              :page-size="pageSize"
-              layout="total, sizes, prev, pager, next, jumper"
-              :total="total">
-          </el-pagination>
-        </div>-->
+      </el-table></div>
+    <div style="padding: 10px 0">
+      <el-pagination
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+          :current-page="pageNum"
+          :page-sizes="[2, 5, 10, 20]"
+          :page-size="pageSize"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="total">
+      </el-pagination>
+    </div>
+
 
     <el-dialog title="信息" :visible.sync="dialogFormVisible" width="40%" :close-on-click-modal="false">
       <el-form label-width="120px" size="small" style="width: 80%; margin: 0 auto">
@@ -97,12 +61,13 @@
         <el-button type="primary" @click="save">确 定</el-button>
       </div>
     </el-dialog>
+
   </div>
 </template>
 
 <script>
 export default {
-  name: "Threaten",
+  name: "PositionPrediction",
   data() {
     return {
       tableData: [],
@@ -121,7 +86,7 @@ export default {
   },
   methods: {
     load() {
-      this.request.get("/threaten/page", {
+      this.request.get("/positionPrediction/page", {
         params: {
           pageNum: this.pageNum,
           pageSize: this.pageSize,
@@ -133,7 +98,7 @@ export default {
       })
     },
     save() {
-      this.request.post("/threaten", this.form).then(res => {
+      this.request.post("/positionPrediction", this.form).then(res => {
         if (res.code === '200') {
           this.$message.success("保存成功")
           this.dialogFormVisible = false
@@ -168,7 +133,7 @@ export default {
       })
     },
     del(id) {
-      this.request.delete("/threaten/" + id).then(res => {
+      this.request.delete("/positionPrediction/" + id).then(res => {
         if (res.code === '200') {
           this.$message.success("删除成功")
           this.load()
@@ -187,7 +152,7 @@ export default {
         return
       }
       let ids = this.multipleSelection.map(v => v.id)  // [{}, {}, {}] => [1,2,3]
-      this.request.post("/threaten/del/batch", ids).then(res => {
+      this.request.post("/positionPrediction/del/batch", ids).then(res => {
         if (res.code === '200') {
           this.$message.success("批量删除成功")
           this.load()
@@ -220,7 +185,7 @@ export default {
       window.open(url)
     },
     exp() {
-      window.open("http://localhost:9090/threaten/export")
+      window.open("http://localhost:9090/positionPrediction/export")
     },
     handleExcelImportSuccess() {
       this.$message.success("导入成功")

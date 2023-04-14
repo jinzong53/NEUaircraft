@@ -26,11 +26,16 @@ public class PositionPrediction implements Serializable {
     @ApiModelProperty("ID")
     private Integer id;
 
-    @ApiModelProperty("名称")
+    @ApiModelProperty("时间")
     private String name;
 
-    @ApiModelProperty("其他")
-    private String addTest;
+    @ApiModelProperty("X轴位置")
+    private String x;
 
+    @ApiModelProperty("Y轴位置")
+    private String y;
+
+    @ApiModelProperty("Z轴位置")
+    private String z;
 
 }

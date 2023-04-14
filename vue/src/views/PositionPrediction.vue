@@ -1,93 +1,50 @@
 <template>
   <div>
-    <el-row :gutter="15">
-      <el-form ref="elForm" :model="formData" :rules="rules" size="medium" label-width="100px">
-        <el-col :span="15">
-          <el-form-item label="下拉选择" prop="field101">
-            <el-select v-model="formData.field101" placeholder="请选择下拉选择" clearable :style="{width: '100%'}">
-              <el-option v-for="(item, index) in field101Options" :key="index" :label="item.label"
-                         :value="item.value" :disabled="item.disabled"></el-option>
-            </el-select>
-          </el-form-item>
-        </el-col>
-        <el-col :span="24">
-          <el-form-item label="上传" prop="field102" required>
-            <el-upload ref="field102" :file-list="field102fileList" :action="field102Action"
-                       :before-upload="field102BeforeUpload">
-              <el-button size="small" type="primary" icon="el-icon-upload">点击上传</el-button>
-            </el-upload>
-          </el-form-item>
-        </el-col>
+    <el-steps :active="active" finish-status="success">
+      <el-step title="步骤 1"></el-step>
+      <el-step title="步骤 2"></el-step>
+    </el-steps>
 
-        <el-col :span="24">
-          <el-form-item size="large">
-            <el-button type="primary" @click="submitForm">提交</el-button>
-            <el-button @click="resetForm">重置</el-button>
-
-          </el-form-item>
-        </el-col>
-      </el-form>
-    </el-row>
+    <Step1 v-show="active==1"/>
+    <Step2 v-show="active==2"/>
+    <el-button @click="prev" >上一步</el-button>
+    <el-button style="margin-top: 12px;" @click="next">下一步</el-button>
   </div>
 </template>
+
 <script>
+//引入组件
+import Step1 from '@/views/Po_1.vue'
+import Step2 from '@/views/Po_2.vue'
+
 export default {
-  components: {},
-  props: [],
   data() {
     return {
-      formData: {
-        field101: undefined,
-        field102: null,
-        field103: undefined,
-        field104: undefined,
-      },
-      rules: {
-        field101: [{
-          required: true,
-          message: '请选择下拉选择',
-          trigger: 'change'
-        }],
-      },
-      field102Action: 'http://localhost:9090/file/file1/upload',
-      field102fileList: [],
-      field101Options: [{
-        "label": "选项一",
-        "value": 1
-      }, {
-        "label": "选项二",
-        "value": 2
-      }],
+      //默认显示第一个组件
+      active: 1
+
     }
   },
-  computed: {},
-  watch: {},
-  created() {},
-  mounted() {},
+  components: {
+    Step1,
+    Step2,
+  },
   methods: {
-    submitForm() {
-      this.$refs['elForm'].validate(valid => {
-        if (!valid) return
-        // TODO 提交表单
-      })
+    //上一步
+    prev() {
+
+      //判断条件，当active小于1，显示第一个组件
+      this.active--;
     },
-    resetForm() {
-      this.$refs['elForm'].resetFields()
-    },
-    field102BeforeUpload(file) {
-      let isRightSize = file.size / 1024 / 1024 < 2
-      if (!isRightSize) {
-        this.$message.error('文件大小超过 2MB')
-      }
-      return isRightSize
-    },
+    //下一步
+    next() {
+
+      this.active ++;
+    }
   }
 }
-
 </script>
+
 <style>
-.el-upload__tip {
-  line-height: 1.2;
-}
 
 </style>
