@@ -28,9 +28,9 @@
 <!--      >-->
 <!--        <el-button type="danger" slot="reference">批量删除 <i class="el-icon-remove-outline"></i></el-button>-->
 <!--      </el-popconfirm>-->
-<!--       <el-upload action="http://localhost:9090/predict/import" :show-file-list="false" accept="xlsx" :on-success="handleExcelImportSuccess" style="display: inline-block">-->
-<!--        <el-button type="primary" class="ml-5">导入 <i class="el-icon-bottom"></i></el-button>-->
-<!--      </el-upload>-->
+       <el-upload action="http://localhost:9090/predict/import" :show-file-list="false" accept="xlsx" :on-success="handleExcelImportSuccess" style="display: inline-block">
+        <el-button type="primary" class="ml-5">导入 <i class="el-icon-bottom"></i></el-button>
+      </el-upload>
       <el-button type="primary" @click="exp" class="ml-5">导出 <i class="el-icon-top"></i></el-button>
     </div>
 
@@ -38,13 +38,13 @@
       <el-table-column type="selection" width="55"></el-table-column>
       <el-table-column prop="id" label="ID" width="80" sortable></el-table-column>
       <el-table-column prop="name" label="飞机名"></el-table-column>
-      <el-table-column prop="geoAltitude" label="飞机地理高度"></el-table-column>
+      <el-table-column prop="geo_altitude" label="飞机地理高度"></el-table-column>
       <el-table-column prop="latitude" label="飞机纬度"></el-table-column>
       <el-table-column prop="longitude" label="飞机经度"></el-table-column>
-      <el-table-column prop="predGeoaltitude" label="预测高度"></el-table-column>
-      <el-table-column prop="predLatitude" label="预测纬度"></el-table-column>
-      <el-table-column prop="predLongitude" label="预测经度"></el-table-column>
-      <el-table-column prop="timeAtServer" label="时间戳"></el-table-column>
+      <el-table-column prop="pred_geo_altitude" label="预测高度"></el-table-column>
+      <el-table-column prop="pred_latitude" label="预测纬度"></el-table-column>
+      <el-table-column prop="pred_longitude" label="预测经度"></el-table-column>
+      <el-table-column prop="time_at_server" label="时间戳"></el-table-column>
 
 <!--      <el-table-column label="操作"  width="180" align="center">
         <template slot-scope="scope">
@@ -81,7 +81,7 @@
           <el-input v-model="form.name" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="飞机地理高度">
-          <el-input v-model="form.geoAltitude" autocomplete="off"></el-input>
+          <el-input v-model="form.geo_altitude" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="飞机纬度">
           <el-input v-model="form.latitude" autocomplete="off"></el-input>
@@ -90,16 +90,16 @@
           <el-input v-model="form.longitude" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="预测高度">
-          <el-input v-model="form.predGeoaltitude" autocomplete="off"></el-input>
+          <el-input v-model="form.pred_geoaltitude" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="预测纬度">
-          <el-input v-model="form.predLatitude" autocomplete="off"></el-input>
+          <el-input v-model="form.pred_latitude" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="预测经度">
-          <el-input v-model="form.predLongitude" autocomplete="off"></el-input>
+          <el-input v-model="form.pred_longitude" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="时间戳">
-          <el-date-picker v-model="form.timeAtServer" type="datetime" value-format="yyyy-MM-dd HH:mm:ss" placeholder="选择日期时间"></el-date-picker>
+          <el-date-picker v-model="form.time_at_server" type="datetime" value-format="yyyy-MM-dd HH:mm:ss" placeholder="选择日期时间"></el-date-picker>
         </el-form-item>
 
       </el-form>
@@ -276,16 +276,7 @@ methods: {
         min: 6.55,
         name: ''
       },
-/*      //图例
-      legend: {
-        orient: 'vertical',
-        right: 50,
-        top: 200,
-        icon: 'roundRect',
-        textStyle:{
-          color: '#2c3e50'
-        }
-      },*/
+
       tooltip:{
         show:true
       },

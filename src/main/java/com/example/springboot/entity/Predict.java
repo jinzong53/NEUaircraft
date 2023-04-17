@@ -29,7 +29,7 @@ public class Predict implements Serializable {
     private String name;
 
     @ApiModelProperty("飞机地理高度")
-    private String geoAltitude;
+    private String geo_altitude;
 
     @ApiModelProperty("飞机纬度")
     private String latitude;
@@ -38,16 +38,16 @@ public class Predict implements Serializable {
     private String longitude;
 
     @ApiModelProperty("预测高度")
-    private String predGeoaltitude;
+    private String pred_geo_altitude;
 
     @ApiModelProperty("预测纬度")
-    private String predLatitude;
+    private String pred_latitude;
 
     @ApiModelProperty("预测经度")
-    private String predLongitude;
+    private String pred_longitude;
 
     @ApiModelProperty("时间戳")
-    private LocalDateTime timeAtServer;
+    private LocalDateTime time_at_server;
 
 
 }
