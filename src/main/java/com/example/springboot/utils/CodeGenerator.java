@@ -22,8 +22,8 @@ public class CodeGenerator {
     
     // 项目路径
     private static final String basePath = "C:\\D\\airplane\\springboot\\";
-    private static final String tableName = "predict";
-    private static final String modelName = "位置预测结果";
+    private static final String tableName = "predi";
+    private static final String modelName = "飞机位置预测";
 
     private static final String PASSWORD = "199896";
 

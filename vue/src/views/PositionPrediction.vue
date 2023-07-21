@@ -5,10 +5,10 @@
       <el-step title="步骤 2"></el-step>
     </el-steps>
 
-    <Step1 v-show="active==1"/>
-    <Step2 v-show="active==2"/>
-    <el-button @click="prev" >上一步</el-button>
-    <el-button style="margin-top: 12px;" @click="next">下一步</el-button>
+      <Step1 v-show="active==1"/>
+      <Step2 v-show="active==2"/>
+      <el-button @click="prev" :disabled=prevShow >上一步</el-button>
+      <el-button @click="next" :disabled=nextShow >下一步</el-button>
   </div>
 </template>
 
@@ -21,6 +21,8 @@ export default {
   data() {
     return {
       //默认显示第一个组件
+	  prevShow: true,
+	  nextShow:false,
       active: 1
 
     }
@@ -32,16 +34,37 @@ export default {
   methods: {
     //上一步
     prev() {
-
       //判断条件，当active小于1，显示第一个组件
       this.active--;
+  	  if(this.active == 1){
+  		  this.prevShow = true
+  	  }else{
+  		  this.prevShow = false
+  	  }
+  	  
+  	  if(this.active==2){
+  	  		  this.nextShow = true
+  	  }else{
+  	  		  this.nextShow = false
+  	  }
     },
+  
     //下一步
     next() {
-
-      this.active ++;
-    }
-  }
+      this.active++;
+  	  if(this.active == 1){
+  	  		  this.prevShow = true
+  	  }else{
+  	  		  this.prevShow = false
+  	  }
+  	  
+  	  if(this.active == 2){
+  		  this.nextShow = true
+  	  }else{
+  		  this.nextShow = false
+  	  }
+    },
+  	}
 }
 </script>
 

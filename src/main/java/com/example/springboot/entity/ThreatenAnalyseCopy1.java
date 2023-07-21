@@ -47,7 +47,12 @@ public class ThreatenAnalyseCopy1 implements Serializable {
     private String distance;
 
     @ApiModelProperty("总威胁值")
-    private String sumTest;
+    private String totalScore;
 
+    @ApiModelProperty("总威胁值")
+    private String topsisScore;
+
+    @ApiModelProperty("总威胁值")
+    private String grayScore;
 
 }

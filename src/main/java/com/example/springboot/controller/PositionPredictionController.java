@@ -6,11 +6,22 @@ import cn.hutool.poi.excel.ExcelReader;
 import cn.hutool.poi.excel.ExcelWriter;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.ServletOutputStream;
+import java.io.*;
 import java.net.URLEncoder;
+
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.example.springboot.entity.Threaten;
+import com.example.springboot.entity.ThreatenAnalyseCopy1;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
-import java.io.InputStream;
+import java.nio.file.DirectoryNotEmptyException;
+import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.springboot.common.Result;
@@ -34,6 +45,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/positionPrediction")
 public class PositionPredictionController {
+
+    @Value("${files.upload.path}")
+    private String fileUploadPath;
 
     @Resource
     private IPositionPredictionService positionPredictionService;
@@ -126,9 +140,97 @@ public class PositionPredictionController {
         // 通过 javabean的方式读取Excel内的对象，但是要求表头必须是英文，跟javabean的属性要对应起来
         List<PositionPrediction> list = reader.readAll(PositionPrediction.class);
 
+        //测试阶段删除改表的全部数据
+        positionPredictionService.remove(new QueryWrapper<>());
+
         positionPredictionService.saveBatch(list);
+        //ID重复禁止插入,后续更新可以改成覆盖的形式
+        //使用idi，主键自增ID无效
+//        for(int i=0;i<list.size();i++){
+//            if(positionPredictionService.getById(list.get(i).getId()) == null){
+//                System.out.println(positionPredictionService.getById(list.get(i).getId()));
+//                positionPredictionService.save(list.get(i));
+//            }
+//        }
+        //生成CSV文件，用于python的读取
+        //下载服务器数据到本体
+        List<PositionPrediction> dataList = positionPredictionService.list();
+        //写入本地
+        String filePath = fileUploadPath + "tempPositionPredictionData.csv";
+        FileWriter fw = null;
+        try{
+            File tempFile = new File(filePath);
+            if (!tempFile.exists()){
+                tempFile.createNewFile();
+            }
+            fw = new FileWriter(filePath);
+            BufferedWriter bw=new BufferedWriter(fw);
+            bw.write("id,timeAtServer,aircraft,latitude,longitude,baroAltitude,geoAltitude,numMeasurements,SerialA,timeAtA,RSSIA,latituteA,longituteA,heightA,SerialB,timeAtB,RSSIB,latitudeB,longituteB,heightB,SerialC,timeAtC,RSSIC,latituteC,longituteC,heightC"+"\n");
+            for(int i=0;i<dataList.size();i++){
+                bw.write(dataList.get(i).getId()+","
+                        +dataList.get(i).getTimeAtServer()+","
+                        +dataList.get(i).getAircraft()+","
+                        +dataList.get(i).getLatitude()+","
+                        +dataList.get(i).getLongitude()+","
+                        +dataList.get(i).getBaroAltitude()+","
+                        +dataList.get(i).getGeoAltitude()+","
+                        +dataList.get(i).getNumMeasurements()+","
+                        +dataList.get(i).getSerialA()+","
+                        +dataList.get(i).getTimeAtA()+","
+                        +dataList.get(i).getRssiA()+","
+                        +dataList.get(i).getLatituteA()+","
+                        +dataList.get(i).getLongituteA()+","
+                        +dataList.get(i).getHeightA()+","
+                        +dataList.get(i).getSerialB()+","
+                        +dataList.get(i).getTimeAtB()+","
+                        +dataList.get(i).getRssiB()+","
+                        +dataList.get(i).getLatitudeB()+","
+                        +dataList.get(i).getLongituteB()+","
+                        +dataList.get(i).getHeightB()+","
+                        +dataList.get(i).getSerialC()+","
+                        +dataList.get(i).getTimeAtC()+","
+                        +dataList.get(i).getRssiC()+","
+                        +dataList.get(i).getLatituteC()+","
+                        +dataList.get(i).getLongituteC()+","
+                        +dataList.get(i).getHeightC()
+                );
+                bw.write("\n");
+            }
+            bw.close();
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+        finally{
+            try{
+                fw.close();
+            }
+            catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+
+        //删除临时文件
+        try {
+            Files.deleteIfExists(
+                    Paths.get(fileUploadPath + "tempPositionPredictionData.json"));
+        }
+        catch (NoSuchFileException e) {
+            System.out.println(
+                    "No such file/directory exists");
+        }
+        catch (DirectoryNotEmptyException e) {
+            System.out.println("Directory is not empty.");
+        }
+        catch (IOException e) {
+            System.out.println("Invalid permissions.");
+        }
+        System.out.println("Deletion successful.");
+
         return Result.success();
     }
+
+
 
     private User getUser() {
         return TokenUtils.getCurrentUser();

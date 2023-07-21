@@ -9,6 +9,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.springboot.common.Result;
 import com.example.springboot.entity.Files;
 import com.example.springboot.mapper.FileMapper;
+import com.example.springboot.utils.AnacondaStart;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,10 +17,10 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.net.URLEncoder;
 import java.util.List;
+import java.util.UUID;
 import org.python.core.*;
 import org.python.util.*;
 /**
@@ -43,12 +44,10 @@ public class FileController {
     @GetMapping("/print")
     public PyObject HelloPython() {
         PythonInterpreter interpreter = new PythonInterpreter();
-        interpreter.execfile("C:\\D\\airplane\\springboot\\predict.py");
+        interpreter.execfile("C:\\D\\airplane\\springboot\\predict4.py");
 
-        PyFunction pyFunction = interpreter.get("hello", PyFunction.class); // 第一个参数为期望获得的函数（变量）的名字，第二个参数为期望返回的对象类型
-        PyObject pyObject = pyFunction.__call__(); // 调用函数
-
-
+        PyFunction pyFunction = interpreter.get("detect4.py", PyFunction.class); // 第一个参数为期望获得的函数（变量）的名字，第二个参数为期望返回的对象类型
+        PyObject pyObject = pyFunction.__call__(); // 调用函数2
 
         System.out.println(pyObject);
         return pyObject;
@@ -64,9 +63,9 @@ public class FileController {
         String originalFilename = file.getOriginalFilename();
         String type = FileUtil.extName(originalFilename);
         long size = file.getSize();
-
         // 定义一个文件唯一的标识码
-        String fileUUID = IdUtil.fastSimpleUUID() + StrUtil.DOT + type;
+        String uuid = IdUtil.fastSimpleUUID();
+        String fileUUID = uuid + StrUtil.DOT + type;
 
         File uploadFile = new File(fileUploadPath + fileUUID);
         // 判断配置的文件目录是否存在，若不存在则创建一个新的文件目录
@@ -82,6 +81,7 @@ public class FileController {
         Files dbFiles = getFileByMd5(md5);
         if (dbFiles != null) {
             url = dbFiles.getUrl();
+            return "fail"; //返回服务器的文件名
         } else {
             // 上传文件到磁盘
             file.transferTo(uploadFile);
@@ -99,7 +99,7 @@ public class FileController {
         saveFile.setMd5(md5);
         fileMapper.insert(saveFile);
 
-        return url;
+        return fileUUID; //返回服务器的文件名
     }
 
     /**
@@ -125,6 +125,9 @@ public class FileController {
         }
         os.flush();
         os.close();
+
+        //生成资料文件
+
     }
 
 
@@ -189,5 +192,97 @@ public class FileController {
         return Result.success(fileMapper.selectPage(new Page<>(pageNum, pageSize), queryWrapper));
     }
 
+    /**
+     * 建立本地文件，并检测数据
+     * @param fileState
+     * @param fileModel
+     * @param fileName
+     * @param fileWeight
+     * @return
+     */
+    @GetMapping("/setPicData")
+    public Result setPicData(@RequestParam String fileState,
+                           @RequestParam String fileModel,
+                           @RequestParam String fileName,
+                           @RequestParam String fileWeight) throws IOException, InterruptedException {
 
+        String filePath = fileUploadPath + "tempData.txt";
+        FileWriter fw = null;
+        try{
+            File file = new File(filePath);
+            if (!file.exists()){
+                file.createNewFile();
+            }
+            fw = new FileWriter(filePath);
+            BufferedWriter bw=new BufferedWriter(fw);
+            bw.write(fileState+"\n");
+            bw.write(fileModel+"\n");
+            bw.write(fileName+"\n");
+            bw.write(fileWeight+"\n");
+            bw.close();
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+        finally{
+            try{
+                fw.close();
+            }
+            catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+
+
+        //启动python文件
+        //System.out.println("test");
+        String evn = AnacondaStart.PYTHONEVN;
+        String pyt =  AnacondaStart.DETECT;
+        Process process;
+        process = Runtime.getRuntime().exec(evn+" " +
+                pyt);
+        //System.out.println(process.waitFor());
+        int re=process.waitFor();//re=0成功，re=1失败
+        BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        in = new BufferedReader(new InputStreamReader(process.getInputStream(),"gbk"));
+        //接收错误流
+        BufferedReader isError = new BufferedReader(new InputStreamReader(process.getErrorStream(),"gbk"));
+        StringBuilder sb= new StringBuilder();
+        StringBuilder sbError= new StringBuilder();
+        String line=null;
+        String lineError= null;
+        process.waitFor();
+        while ((line = in.readLine()) != null) {
+            sb.append(line);
+            sb.append("\n");
+        }
+        System.out.println(sb);
+
+        while ((lineError= isError.readLine()) != null) {
+            sbError.append(lineError);
+            sbError.append("\n");
+        }
+        System.out.println(sbError);
+        in.close();
+        isError.close();
+
+
+        return Result.success(fileName);
+    }
+
+    /**
+     * 使用图片ID判定检测完成的图片是否存在
+     * @param picID
+     * @return
+     */
+    @GetMapping("/isExist")
+    public Result isExist(@RequestParam String picID){
+        File file = new File(fileUploadPath + "detect_"+ picID);
+        if(file.exists()){
+            return Result.success(1);
+        }else{
+            return Result.success(0);
+
+        }
+    }
 }

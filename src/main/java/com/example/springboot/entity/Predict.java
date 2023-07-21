@@ -47,7 +47,7 @@ public class Predict implements Serializable {
     private String pred_longitude;
 
     @ApiModelProperty("时间戳")
-    private LocalDateTime time_at_server;
+    private String time_at_server;
 
 
 }

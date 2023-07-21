@@ -6,11 +6,16 @@ import cn.hutool.poi.excel.ExcelReader;
 import cn.hutool.poi.excel.ExcelWriter;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.ServletOutputStream;
+import java.io.*;
 import java.net.URLEncoder;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
-import java.io.InputStream;
+import java.nio.file.DirectoryNotEmptyException;
+import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.Paths;
 import java.util.List;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.springboot.common.Result;
@@ -37,6 +42,9 @@ public class ThreatenController {
 
     @Resource
     private IThreatenService threatenService;
+
+    @Value("${files.upload.path}")
+    private String fileUploadPath;
 
     private final String now = DateUtil.now();
 
@@ -126,7 +134,69 @@ public class ThreatenController {
         // 通过 javabean的方式读取Excel内的对象，但是要求表头必须是英文，跟javabean的属性要对应起来
         List<Threaten> list = reader.readAll(Threaten.class);
 
-        threatenService.saveBatch(list);
+        //清空数据库
+        threatenService.remove(new QueryWrapper<>());
+
+        for(int i=0;i<list.size();i++){
+            if(threatenService.getById(list.get(i).getId()) == null){
+                threatenService.save(list.get(i));
+            }
+        }
+        //threatenService.saveBatch(list);这种方法会报错，因为会有重复id
+        //按照CSV的方式保存文件到files目录，等待python来读取文件，然后python将结果OS到files中
+        //下载服务器数据到本体
+        List<Threaten> dataList = threatenService.list();
+        //写入本地
+        String filePath = fileUploadPath + "tempThreatenData.csv";
+        FileWriter fw = null;
+        try{
+            File tempFile = new File(filePath);
+            if (!tempFile.exists()){
+                tempFile.createNewFile();
+            }
+            fw = new FileWriter(filePath);
+            BufferedWriter bw=new BufferedWriter(fw);
+            for(int i=0;i<dataList.size();i++){
+                bw.write(dataList.get(i).getType()+","
+                        +dataList.get(i).getDistance()+","
+                        +dataList.get(i).getHeight()+","
+                        +dataList.get(i).getAngle()+","
+                        +dataList.get(i).getVelocity()+","
+                        +dataList.get(i).getId()+","
+                        +dataList.get(i).getName()
+                );
+                bw.write("\n");
+            }
+            bw.close();
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+        finally{
+            try{
+                fw.close();
+            }
+            catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+        //删除临时文件
+        try {
+            Files.deleteIfExists(
+                    Paths.get(fileUploadPath + "tempThreatenData.json"));
+        }
+        catch (NoSuchFileException e) {
+            System.out.println(
+                    "No such file/directory exists");
+        }
+        catch (DirectoryNotEmptyException e) {
+            System.out.println("Directory is not empty.");
+        }
+        catch (IOException e) {
+            System.out.println("Invalid permissions.");
+        }
+        System.out.println("Deletion successful.");
+
         return Result.success();
     }
 

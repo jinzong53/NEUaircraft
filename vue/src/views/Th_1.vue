@@ -26,7 +26,7 @@
             </el-popconfirm>-->
       <el-button type="primary" @click="exp" class="ml-5">下载模板 <i class="el-icon-bottom"></i></el-button>
       <el-upload action="http://localhost:9090/threaten/import" :show-file-list="false" accept="xlsx" :on-success="handleExcelImportSuccess" style="display: inline-block">
-        <el-button type="primary" class="ml-5">上传文件<i class="el-icon-top"></i></el-button>
+          <el-button type="primary" class="ml-5">上传文件<i class="el-icon-top"></i></el-button>
       </el-upload>
 
     </div></div>
@@ -35,11 +35,11 @@
           <el-table-column type="selection" width="55"></el-table-column>
           <el-table-column prop="id" label="ID" width="80" sortable></el-table-column>
           <el-table-column prop="name" label="飞机名称"></el-table-column>
-          <el-table-column prop="height" label="飞机高度"></el-table-column>
+          <el-table-column prop="height" label="飞机高度":formatter="rounding1"></el-table-column>
           <el-table-column prop="type" label="飞机类型"></el-table-column>
-          <el-table-column prop="velocity" label="飞机速度"></el-table-column>
-          <el-table-column prop="angle" label="飞机角度"></el-table-column>
-          <el-table-column prop="distance" label="飞机距离"></el-table-column>
+          <el-table-column prop="velocity" label="飞机速度":formatter="rounding1"></el-table-column>
+          <el-table-column prop="angle" label="飞机角度":formatter="rounding1"></el-table-column>
+          <el-table-column prop="distance" label="飞机距离":formatter="rounding1"></el-table-column>
 
 <!--          <el-table-column label="操作"  width="180" align="center">
             <template slot-scope="scope">
@@ -76,19 +76,19 @@
           <el-input v-model="form.name" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="飞机高度">
-          <el-input v-model="form.height" autocomplete="off"></el-input>
+          <el-input v-model="form.height" autocomplete="off":formatter="rounding1"></el-input>
         </el-form-item>
         <el-form-item label="飞机类型">
-          <el-input v-model="form.type" autocomplete="off"></el-input>
+          <el-input v-model="form.type" autocomplete="off":formatter="rounding1"></el-input>
         </el-form-item>
         <el-form-item label="飞机速度">
-          <el-input v-model="form.velocity" autocomplete="off"></el-input>
+          <el-input v-model="form.velocity" autocomplete="off":formatter="rounding1"></el-input>
         </el-form-item>
         <el-form-item label="飞机角度">
-          <el-input v-model="form.angle" autocomplete="off"></el-input>
+          <el-input v-model="form.angle" autocomplete="off":formatter="rounding1"></el-input>
         </el-form-item>
         <el-form-item label="飞机距离">
-          <el-input v-model="form.distance" autocomplete="off"></el-input>
+          <el-input v-model="form.distance" autocomplete="off":formatter="rounding1"></el-input>
         </el-form-item>
 
       </el-form>
@@ -120,6 +120,20 @@ export default {
     this.load()
   },
   methods: {
+    /*
+* 用于保留小数点
+* */
+    rounding(row,column) {
+      if (row[column.property]) {
+        return parseFloat(row[column.property]).toFixed(2)
+      }
+    },
+    //保留三位小数：
+    rounding1(row,column) {
+      if(row[column.property]){
+        return parseFloat(row[column.property]).toFixed(3)
+      }
+    },
     load() {
       this.request.get("/threaten/page", {
         params: {

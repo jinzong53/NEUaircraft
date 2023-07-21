@@ -6,7 +6,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/vip?serverTimezone=GMT%2b8
     username: root
-    password: 199896
+    password: 123456
   servlet:
     multipart:
       max-file-size: 100MB
@@ -18,7 +18,18 @@ mybatis:
 mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    map-underscore-to-camel-case: true # 数据库下划线自动转驼峰标示关闭56
 
 files:
   upload:
-    path: C:\D\airplane\springboot/files/
+    path: C:\Users\jinzong53\Desktop\SoftResource\DBNU\springboot\files\
+
+# using for start python's file by anaconda's Vevn
+anaconda:
+  path:
+    detect: C:\Users\jinzong53\Desktop\Project\detect.py
+    treat: C:\Users\jinzong53\Desktop\Project\treat.py
+    predict: C:\Users\jinzong53\Desktop\Project\predict.py
+    python-evn: D:\Programs\Anaconda3\envs\pytorch\python.exe
+
+

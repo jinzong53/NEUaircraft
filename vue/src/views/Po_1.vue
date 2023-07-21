@@ -8,17 +8,19 @@
         <el-upload action="http://localhost:9090/positionPrediction/import" :show-file-list="false" accept="xlsx" :on-success="handleExcelImportSuccess" style="display: inline-block">
           <el-button type="primary" class="ml-5">上传文件<i class="el-icon-top"></i></el-button>
         </el-upload>
-
       </div></div>
+
+
     <div>
       <el-table :data="tableData" border stripe :header-cell-class-name="'headerBg'"  @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55"></el-table-column>
         <el-table-column prop="id" label="ID" width="80" sortable></el-table-column>
-        <el-table-column prop="name" label="时间"></el-table-column>
-        <el-table-column prop="x" label="X轴位置"></el-table-column>
-        <el-table-column prop="y" label="X轴位置"></el-table-column>
-        <el-table-column prop="z" label="X轴位置"></el-table-column>
-
+        <el-table-column prop="timeAtServer" label="时间戳" :formatter="rounding1"></el-table-column>
+        <el-table-column prop="aircraft" label="飞行器"></el-table-column>
+        <el-table-column prop="serialA" label="探测器1" :formatter="rounding1"></el-table-column>
+        <el-table-column prop="serialB" label="探测器2" :formatter="rounding1"></el-table-column>
+        <el-table-column prop="serialC" label="探测器3" :formatter="rounding1"></el-table-column>
+<!--        <el-table-column prop="geoAltitude" label="地理海拔" :formatter="rounding1"></el-table-column>-->
 
       </el-table></div>
     <div style="padding: 10px 0">
@@ -40,19 +42,19 @@
           <el-input v-model="form.name" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="飞机高度">
-          <el-input v-model="form.height" autocomplete="off"></el-input>
+          <el-input v-model="form.height" autocomplete="off":formatter="rounding1"></el-input>
         </el-form-item>
         <el-form-item label="飞机类型">
           <el-input v-model="form.type" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="飞机速度">
-          <el-input v-model="form.velocity" autocomplete="off"></el-input>
+          <el-input v-model="form.velocity" autocomplete="off":formatter="rounding1"></el-input>
         </el-form-item>
         <el-form-item label="飞机角度">
-          <el-input v-model="form.angle" autocomplete="off"></el-input>
+          <el-input v-model="form.angle" autocomplete="off":formatter="rounding1"></el-input>
         </el-form-item>
         <el-form-item label="飞机距离">
-          <el-input v-model="form.distance" autocomplete="off"></el-input>
+          <el-input v-model="form.distance" autocomplete="off":formatter="rounding1"></el-input>
         </el-form-item>
 
       </el-form>
@@ -73,7 +75,7 @@ export default {
       tableData: [],
       total: 0,
       pageNum: 1,
-      pageSize: 10,
+      pageSize: 20,
       name: "",
       form: {},
       dialogFormVisible: false,
@@ -85,6 +87,21 @@ export default {
     this.load()
   },
   methods: {
+    /*
+* 用于保留小数点
+* */
+    rounding(row,column) {
+      if (row[column.property]) {
+        return parseFloat(row[column.property]).toFixed(2)
+      }
+    },
+    //保留三位小数：
+    rounding1(row,column) {
+      if(row[column.property]){
+        return parseFloat(row[column.property]).toFixed(3)
+      }
+    },
+
     load() {
       this.request.get("/positionPrediction/page", {
         params: {
@@ -97,6 +114,8 @@ export default {
         this.total = res.data.total
       })
     },
+
+
     save() {
       this.request.post("/positionPrediction", this.form).then(res => {
         if (res.code === '200') {
@@ -166,7 +185,6 @@ export default {
       this.load()
     },
     handleSizeChange(pageSize) {
-      console.log(pageSize)
       this.pageSize = pageSize
       this.load()
     },
